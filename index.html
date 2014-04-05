@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="description" content="open edit list free" />
+<meta name="keywords" content="eline" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>alteditor</title>
+<style type="text/css">
+	
+::selection { background:#3eccbf; }
+*{ color:#333;font-size:17px; line-height: 1.4em; outline: 0; margin:0 ; padding: 0; letter-spacing: .05em;}
+
+h1#logo{ width: 72px; height: 78px; background: url('alteditor.png'); margin:4em auto;}
+
+
+#zone{ background:#fff; max-width: 80%; height: auto; min-height:200px; padding: 2em; border-radius: 10px; border:4px #eee dashed; margin: 0 auto; word-break:word-break;}
+#zone p{ text-indent: 2em; margin-bottom: 1em; }
+#zone strong{ font-size: 1.2em; font-weight: bolder; color: #000;}
+#zone a{ font: inherit; color:red; padding: 0 .1em;}
+
+</style>
+<script src="jquery-1.11.0.min.js"></script>
+<script src="http://egofang.com/lib/client/egofn.js"></script>
+<script src="rangy-core.js"></script>
+<script src="alteditor.js"></script>
+</head>
+<body>
+
+<h1 id="logo"></h1>
+<div id="zone"></div>
+
+
+<script type="text/javascript">
+
+var k= new alteditor(document.getElementById('zone'),{inline:['strong','em'],spoor:"文"});
+
+</script>
+</body>
+</html>
+
+
+
+
