@@ -68,6 +68,13 @@ function alteditor(element,options){
 			else{ this.element.setAttribute("contenteditable","true");}
 			this.bindKeyAct();
 			//this.bindImageUploader();
+			//pasteWrapper
+			
+			this.pasteWrapper = document.createElement('input');
+			this.pasteWrapper.setAttribute('type','text');
+			//this.pasteWrapper.style.width= 0 ;
+			this.element.parentNode.insertBefore(this.pasteWrapper,this.element);
+
 			return this;
 		},
 
@@ -156,13 +163,13 @@ function alteditor(element,options){
 							);
 					this.element.insertBefore( node , beforeN );
 				}else{
-					console.log(node);
 					this.range().insertNode(node);
 				}
 			}else if( egofn.AinB(node.tagName,this.options.inline) ){
 				this.range().insertNode(node);
 			}
 			this.reRange();
+			//this.Range.startContainer.normalize();
 			console.log('a');
 		},
 
@@ -188,7 +195,7 @@ function alteditor(element,options){
 
 
 
-		//on(obj node[,method])   method: true to start, 'all' to selectAll, else to end;
+		//on(obj node[,method])   method: true to start, 'all' to selectAll, else to end ,或者start 偏移量
 		on: function(tarNode,pos){
 			console.log('on');
 			if(!tarNode){
@@ -209,13 +216,21 @@ function alteditor(element,options){
 			}
 
 			var nr=rangy.createRange();
-			nr.selectNode(tarNode);
-			if(pos!="all"){nr.collapse(pos);}
+			if( !isNaN(pos) ){ //精确便宜
+				console.log(pos)
+				console.log(tarNode.textContent)
+				nr.setStart(tarNode.firstChild ? tarNode.firstChild : tarNode, pos);
+				nr.collapse(true);
+			}
+			else{
+				nr.selectNode(tarNode);
+				if(pos!="all"){nr.collapse(pos);}
+			}
+
 			rangy.getSelection().setRanges([nr]);
 			this.reRange();
 			return tarNode;
 		},
-
 
 
 
@@ -268,6 +283,7 @@ function alteditor(element,options){
 			var self=this;
 			this.element.addEventListener("keydown",function(e){
 				self.reRange();
+				console.log(egofn.keyCode(e))
 				switch (egofn.keyCode(e)){
 					//回删
 					case 8:     if(self.Range.startContainer.textContent.length < 2){ 
@@ -288,6 +304,8 @@ function alteditor(element,options){
 					//ctrl+s
 					case 83:	if(e.ctrlKey || e.metaKey){  egofn.banEvent(e);self.options.save(); }
 								break;
+
+
 					default:    if(!self.Range.isInLine){ 
 									newNode = self.placeHolder();
 									self.insert( newNode );
@@ -310,9 +328,35 @@ function alteditor(element,options){
 						egofn.banEvent(e);
 						if( self.Range.toString().length<1 || self.Range.toString()==self.options.spoor ){ self.changeTextTag(); }
 						break;
+
+
+					//ctrl+v
+					case 86: 	//if(e.ctrlKey || e.metaKey){  
+									//alert(self.pasteWrapper.value)
+								//}
+								break;
 					default: ;
 				}
 			},false);
+
+
+			//复制粘贴
+			this.element.addEventListener(Sys.ie?"beforepaste":"paste",function(e){
+				//egofn.banEvent(e);
+				oriRange = self.range().cloneRange;
+				self.pasteWrapper.focus();
+
+				window.setTimeout(function(){
+					console.log(self.pasteWrapper.value);
+					var pasteText = document.createTextNode(self.pasteWrapper.value);
+					var node = self.Range.startContainer;
+					var offset = self.Range.startOffset;
+					self.on(node,offset);
+					self.insert(pasteText);
+					self.on(pasteText);
+					self.clear();
+				},0);
+			});
 		},
 
 
@@ -384,20 +428,15 @@ function alteditor(element,options){
 
 
 
-		//clearInvalidInline(areaNode,[Array except Nodes])
-		clearInvalidNodes: function(aN){
-			console.log('clearInvalidNodes');
-			var a=egofn.descendantNodes_OF(aN,[1]);
-			for (i=0;i<a.length;i++){
-				if(egofn.AinB(a[i],arguments[1])){continue;}
-				
-				if(egofn.AinB(a[i].tagName,this.options.inline) && ( a[i].textContent.length==0 || a[i].textContent==this.options.spoor) ){
-					a[i].parentNode.removeChild(a[i]);
+		clear: function(aN){
+			var nodes=egofn.descendantNodes_OF(this.element);
+			for (i=0;i<nodes.length;i++){
+				if(nodes[i].tagName){
+					nodes[i].normalize();
 				}
 			}
 			this.reRange();
 		},
-
 
 		
 		//hack chrome下回删完整tag后样式残留问题，需程序删除node，并on。
@@ -417,24 +456,6 @@ function alteditor(element,options){
 			//this.on(prevNode);
 			this.reRange();
 		},
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
