@@ -72,7 +72,7 @@ function alteditor(element,options){
 			
 			this.pasteWrapper = document.createElement('input');
 			this.pasteWrapper.setAttribute('type','text');
-			//this.pasteWrapper.style.width= 0 ;
+			this.pasteWrapper.style.width= 0 ;
 			this.element.parentNode.insertBefore(this.pasteWrapper,this.element);
 
 			return this;
@@ -96,8 +96,16 @@ function alteditor(element,options){
 
 
 
-
-
+		//获取当前指针位置
+		coord: function(){
+			var buttonHeight = 50,
+	        boundary = this.range().getBoundingClientRect();
+	        return {x:window.pageXOffset+boundary.left,	//相对文档
+	        		y:window.pageYOffset+boundary.top,
+	        		left:boundary.left,	//相对窗口
+	        		top:boundary.top
+	        	};
+		},
 
 
 
@@ -134,7 +142,7 @@ function alteditor(element,options){
 /*****************************************************************  Base functions  ***************************************************************************/
 		//重定位光标
 		reRange: function(){
-			//console.log('reRange');
+			this.coord();
 			this.Range=rangy.getSelection().getRangeAt(0).cloneRange();
 			//rangy: this.Range.startContainer;
 			while(!this.Range.startContainer.tagName){
@@ -177,7 +185,6 @@ function alteditor(element,options){
 
 		//分裂标签 , 返回 rNode(分裂出去新生成的)
 		breakup: function(){
-			console.log('breakup');
 			if(this.Range.atStart){
 				return this.Range.startContainer;
 			}else if(this.Range.atEnd){
@@ -197,7 +204,6 @@ function alteditor(element,options){
 
 		//on(obj node[,method])   method: true to start, 'all' to selectAll, else to end ,或者start 偏移量
 		on: function(tarNode,pos){
-			console.log('on');
 			if(!tarNode){
 				//try to on closest node
 				var ph = this.placeHolder();	//需要在range处插入node，再通过相邻node获取。
@@ -216,7 +222,7 @@ function alteditor(element,options){
 			}
 
 			var nr=rangy.createRange();
-			if( !isNaN(pos) ){ //精确便宜
+			if( typeof pos == 'number' ){ //精确偏移
 				console.log(pos)
 				console.log(tarNode.textContent)
 				nr.setStart(tarNode.firstChild ? tarNode.firstChild : tarNode, pos);
@@ -283,7 +289,7 @@ function alteditor(element,options){
 			var self=this;
 			this.element.addEventListener("keydown",function(e){
 				self.reRange();
-				console.log(egofn.keyCode(e))
+				//console.log(egofn.keyCode(e))
 				switch (egofn.keyCode(e)){
 					//回删
 					case 8:     if(self.Range.startContainer.textContent.length < 2){ 
@@ -298,15 +304,15 @@ function alteditor(element,options){
 								break;
 					//回车
 					case 13:	egofn.banEvent(e);
-								if(!self.Range.collapsed){ break; }
+								if(!self.Range.collapsed || self.Range.isInLine==self.options.inline.length-1){ break; }
 								self.breakLine();
 								break;
 					//ctrl+s
 					case 83:	if(e.ctrlKey || e.metaKey){  egofn.banEvent(e);self.options.save(); }
 								break;
 
-
 					default:    if(!self.Range.isInLine){ 
+									console.log('a');
 									newNode = self.placeHolder();
 									self.insert( newNode );
 									self.on(newNode,'all');
@@ -320,22 +326,20 @@ function alteditor(element,options){
 					//Alt
 					case 18:
 						egofn.banEvent(e);
-						//if( self.Range.toString().length>0 && self.Range.toString()!=self.options.spoor ){ self.link(); }
-						self.toggleTextTag();//else
+						if( !self.Range.collapsed && self.Range.toString()!=self.options.spoor ){ self.link(); }
+						else{ self.toggleTextTag(); } //else
 						break;
 				  	//Esc
 				  	case 27:
 						egofn.banEvent(e);
 						if( self.Range.toString().length<1 || self.Range.toString()==self.options.spoor ){ self.changeTextTag(); }
 						break;
-
-
 					//ctrl+v
 					case 86: 	//if(e.ctrlKey || e.metaKey){  
 									//alert(self.pasteWrapper.value)
 								//}
 								break;
-					default: ;
+					//default: ;
 				}
 			},false);
 
@@ -347,7 +351,7 @@ function alteditor(element,options){
 				self.pasteWrapper.focus();
 
 				window.setTimeout(function(){
-					console.log(self.pasteWrapper.value);
+					//console.log(self.pasteWrapper.value);
 					var pasteText = document.createTextNode(self.pasteWrapper.value);
 					var node = self.Range.startContainer;
 					var offset = self.Range.startOffset;
@@ -357,13 +361,19 @@ function alteditor(element,options){
 					self.clear();
 				},0);
 			});
+
+
+			//鼠标动作
+			this.element.addEventListener('mouseup',function(e){
+				self.reRange();
+				if( !self.Range.collapsed ){ console.log( self.coord() );}
+			});
 		},
 
 
 
-/*
+
 		link: function(){
-			console.log('link');
 			if(this.Range.crossTag){ return console.log("can't add link to crossTag!");}
 			var href = window.prompt("请输入链接：");
 			if(!href){ return false;}
@@ -373,10 +383,7 @@ function alteditor(element,options){
 			aTag.setAttribute("target",'_blank');
 		},
 
-*/
-
 		tab: function(ee){
-			console.log('tab');
 			var tab=this.Range.createContextualFragment("&nbsp;&nbsp;&nbsp;&nbsp;");
 			var n=tab.lastChild;
 			this.insert(tab);
@@ -402,7 +409,6 @@ function alteditor(element,options){
 
 		//支持选中文本时更改Tag
 		changeTextTag: function(tarTag){
-			console.log('changeTextTag');
 			tarTag = tarTag ? tarTag : this.options.inline[0];
 			var oriText = this.Range.collapsed ? this.options.spoor : this.Range.toString();
 			var newNode=document.createElement(tarTag);
@@ -411,13 +417,13 @@ function alteditor(element,options){
 			this.reRange();
 			this.insert(newNode);
 			this.on(newNode,"all");
+			this.clear();
 			return newNode;
 		},
 
 
 
 		toggleTextTag: function(){
-			console.log('toggleTextTag');
 			var tarTag;
 			if( !this.Range.isInLine || parseInt(this.Range.isInLine)==(this.options.inline.length-2) ){ tarTag = this.options.inline[0] }
 			else{
@@ -433,6 +439,9 @@ function alteditor(element,options){
 			for (i=0;i<nodes.length;i++){
 				if(nodes[i].tagName){
 					nodes[i].normalize();
+					if(nodes[i].textContent.length<1){ nodes[i].parentNode.removeChild(nodes[i]); }
+				}else{
+					nodes[i].parentNode.removeChild(nodes[i]);
 				}
 			}
 			this.reRange();
@@ -454,6 +463,7 @@ function alteditor(element,options){
 			//}
 			this.element.removeChild(currNode);
 			//this.on(prevNode);
+			this.clear();
 			this.reRange();
 		},
 
@@ -519,40 +529,3 @@ function alteditor(element,options){
 		*/
 	}
 })();
-
-
-
-
-
-/*  setToolbarPosition: 
-function () {
-    var buttonHeight = 50,
-        selection = window.getSelection(),
-        range = selection.getRangeAt(0),
-        boundary = range.getBoundingClientRect(),
-        defaultLeft = (this.options.diffLeft) - (this.toolbar.offsetWidth / 2),
-        middleBoundary = (boundary.left + boundary.right) / 2,
-        halfOffsetWidth = this.toolbar.offsetWidth / 2;
-    if (boundary.top < buttonHeight) {
-        this.toolbar.classList.add('medium-toolbar-arrow-over');
-        this.toolbar.classList.remove('medium-toolbar-arrow-under');
-        this.toolbar.style.top = buttonHeight + boundary.bottom - this.options.diffTop + window.pageYOffset - this.toolbar.offsetHeight + 'px';
-    } else {
-        this.toolbar.classList.add('medium-toolbar-arrow-under');
-        this.toolbar.classList.remove('medium-toolbar-arrow-over');
-        this.toolbar.style.top = boundary.top + this.options.diffTop + window.pageYOffset - this.toolbar.offsetHeight + 'px';
-    }
-    if (middleBoundary < halfOffsetWidth) {
-        this.toolbar.style.left = defaultLeft + halfOffsetWidth + 'px';
-    } else if ((window.innerWidth - middleBoundary) < halfOffsetWidth) {
-        this.toolbar.style.left = window.innerWidth + defaultLeft - halfOffsetWidth + 'px';
-    } else {
-        this.toolbar.style.left = defaultLeft + middleBoundary + 'px';
-    }
-
-    this.hideAnchorPreview();
-
-    return this;
-},
-
-*/
