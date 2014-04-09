@@ -177,8 +177,6 @@ function alteditor(element,options){
 				this.range().insertNode(node);
 			}
 			this.reRange();
-			//this.Range.startContainer.normalize();
-			console.log('a');
 		},
 
 
@@ -210,8 +208,8 @@ function alteditor(element,options){
 				this.insert(ph);
 				var prevNode = ph.previousSibling;
 				var nextNode = ph.nextSibling;
-				console.log( this.Range.startContainer );
-				console.log(prevNode+'/'+nextNode);
+				//console.log( this.Range.startContainer );
+				//console.log(prevNode+'/'+nextNode);
 				this.element.removeChild(ph);
 				if( prevNode){
 					this.on(prevNode);
@@ -293,11 +291,10 @@ function alteditor(element,options){
 				switch (egofn.keyCode(e)){
 					//回删
 					case 8:     if(self.Range.startContainer.textContent.length < 2){ 
-									egofn.banEvent(e);self.clearTag(e);
+									self.clearTag(e);
 								}
 								if(!self.Range.isInLine){ self.on(); }
 								break;
-
 					//tab
 					case 9:		egofn.banEvent(e);
 								self.tab(e);
@@ -311,8 +308,8 @@ function alteditor(element,options){
 					case 83:	if(e.ctrlKey || e.metaKey){  egofn.banEvent(e);self.options.save(); }
 								break;
 
-					default:    if(!self.Range.isInLine){ 
-									console.log('a');
+					default:    console.log(self.Range.isInLine)
+								if(!self.Range.isInLine){
 									newNode = self.placeHolder();
 									self.insert( newNode );
 									self.on(newNode,'all');
@@ -324,20 +321,13 @@ function alteditor(element,options){
 				self.reRange();
 				switch (egofn.keyCode(e)){
 					//Alt
-					case 18:
-						egofn.banEvent(e);
-						if( !self.Range.collapsed && self.Range.toString()!=self.options.spoor ){ self.link(); }
-						else{ self.toggleTextTag(); } //else
-						break;
+					case 18:  	"value", egofn.banEvent(e);
+								if( !self.Range.collapsed && self.Range.toString()!=self.options.spoor ){ self.link(); }
+								else{ self.toggleTextTag(); } //else
+								break;
 				  	//Esc
-				  	case 27:
-						egofn.banEvent(e);
-						if( self.Range.toString().length<1 || self.Range.toString()==self.options.spoor ){ self.changeTextTag(); }
-						break;
-					//ctrl+v
-					case 86: 	//if(e.ctrlKey || e.metaKey){  
-									//alert(self.pasteWrapper.value)
-								//}
+				  	case 27: 	egofn.banEvent(e);
+								if( self.Range.toString().length<1 || self.Range.toString()==self.options.spoor ){ self.changeTextTag(); }
 								break;
 					//default: ;
 				}
@@ -439,7 +429,9 @@ function alteditor(element,options){
 			for (i=0;i<nodes.length;i++){
 				if(nodes[i].tagName){
 					nodes[i].normalize();
-					if(nodes[i].textContent.length<1){ nodes[i].parentNode.removeChild(nodes[i]); }
+					if(nodes[i].textContent.length<1 && nodes[i].tagName!=this.options.lineBreaker().tagName){
+						nodes[i].parentNode.removeChild(nodes[i]);
+					}
 				}else{
 					nodes[i].parentNode.removeChild(nodes[i]);
 				}
@@ -451,8 +443,8 @@ function alteditor(element,options){
 		//hack chrome下回删完整tag后样式残留问题，需程序删除node，并on。
 		//及换行后删除
 		clearTag: function(e){
-			if(!this.Range.isInLine){return false;}
-			//if(this.Range.startConta){ return false; }
+			if(!this.Range.isInLine || this.Range.atStart){return false;}
+			egofn.banEvent(e);
 			console.log('clearTag');
 			var currNode = this.Range.startContainer
 			var prevNode = this.Range.startContainer.previousSibling;
