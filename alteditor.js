@@ -3,6 +3,21 @@
 *@import rangy-core.js
 *@import egofn.js
 */
+//egofn.descendantNodes_OF(rootNode[,nodeType])
+egofn.descendantNodes_OF = function(rootNode){
+	//if(rootNode.nodeType!=1){return false;}else 
+	//if(!rootNode.childNodes){return null}
+	var re=[],type=arguments[1]?arguments[1]:[1,2,3];
+	function roll(c){
+		for (i=0;i<c.childNodes.length;i++){
+			if(egofn.AinB(c.childNodes[i].nodeType,type)){ re.push(c.childNodes[i]); }
+			if(c.childNodes[i].childNodes.length>1){ roll(c.childNodes[i]) }; //??? infinit loops if length>0
+		}
+	}
+	roll(rootNode);
+	return re;
+}
+
 
 /*
 bugs:
@@ -310,6 +325,7 @@ function alteditor(element,options){
 
 					default:    console.log(self.Range.isInLine)
 								if(!self.Range.isInLine){
+									self.clear();
 									newNode = self.placeHolder();
 									self.insert( newNode );
 									self.on(newNode,'all');
@@ -365,7 +381,7 @@ function alteditor(element,options){
 
 		link: function(){
 			if(this.Range.crossTag){ return console.log("can't add link to crossTag!");}
-			var href = window.prompt("请输入链接：");
+			var href = window.prompt("Add link to text:");
 			if(!href){ return false;}
 
 			var aTag = this.changeTextTag('a');
@@ -425,6 +441,7 @@ function alteditor(element,options){
 
 
 		clear: function(aN){
+			console.log('clear')
 			var nodes=egofn.descendantNodes_OF(this.element);
 			for (i=0;i<nodes.length;i++){
 				if(nodes[i].tagName){
@@ -433,6 +450,7 @@ function alteditor(element,options){
 						nodes[i].parentNode.removeChild(nodes[i]);
 					}
 				}else{
+					console.log(nodes[i]);
 					nodes[i].parentNode.removeChild(nodes[i]);
 				}
 			}

@@ -7,17 +7,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>alteditor</title>
 <style type="text/css">
-	
-::selection { background:#3eccbf; }
-*{ color:#333;font-size:17px; line-height: 1.4em; outline: 0; margin:0 ; padding: 0; letter-spacing: .05em;}
+::selection { background:#ccc; }
+*{ color:#333;font-size:16px; line-height: 1.4em; outline: 0; margin:0 ; padding: 0; letter-spacing: .03em;}
+h1#logo{ width: 180px; height: 60px; background: url('sprite.png') no-repeat; margin:4em auto 1em  auto; text-indent: -9999px;}
+h2{ text-align: center; margin-bottom: 3em; font-size: .7em; color:#7c7c7c}
+a{ font: inherit; color:#3eccbf; padding:0 .2em; text-decoration: none;}
+#editor{ background:#fff; width:100%; max-width:660px; height: auto; min-height:200px; padding: 2em; border-radius: 8px; border:4px #eee dashed; margin: 0 auto; word-break:word-break; cursor: text;}
+button#get{ display: block;background:#3eccbf;width: 100%; max-width:660px; padding:1em 2em;text-align: center; margin:1.5em auto;
+	border: 0;border-radius: 4px;box-sizing:content-box; color: #fff;
+}
+button:active{ background:#2ea69f!important;}
+#get span{ width:32px; height: 32px;background: url('sprite.png') no-repeat; background-position: 0 -60px; display: inline-block; text-indent: -9999px; vertical-align:middle; margin-right:1em;}
 
-h1#logo{ width: 72px; height: 78px; background: url('alteditor.png'); margin:4em auto;}
-
-
-#zone{ background:#fff; max-width: 80%; height: auto; min-height:200px; padding: 2em; border-radius: 10px; border:4px #eee dashed; margin: 0 auto; word-break:word-break;}
-#zone p{ text-indent: 2em; margin-bottom: 1em; }
-#zone strong{ font-size: 1.2em; font-weight: bolder; color: #000;}
-#zone a{ font: inherit; color:red; padding: 0 .1em;}
+/***
+just defined your style use css
+***/
+#editor>span{ text-indent: 2em; margin-bottom: 1em; }
+#editor>strong{ font-size: 1.1em; font-weight:bolder; color: #000;}
+#editor>a{ font: inherit; color:#3eccbf; padding:0 .2em;}
 
 </style>
 <script src="jquery-1.11.0.min.js"></script>
@@ -27,14 +34,25 @@ h1#logo{ width: 72px; height: 78px; background: url('alteditor.png'); margin:4em
 </head>
 <body>
 
-<h1 id="logo"></h1>
-<div id="zone"></div>
+<h1 id="logo">alt-editor</h1>
+<h2>Present from <a href="http://egofang.com">egofang</a></h2>
+<div id="editor">
+	<strong>alt-editor</strong><span> helps input things as pure html tags.</span><em>Check the Source Code!</em>
+	<br/>
+	<span>Press </span><strong>alt</strong><span> key to toggle font-style u defined.</span>
+	<br/>
+	<span>Wanna a </span><a href="#">Link</a><span> ? Just Press</span><strong> alt</strong><span> key while text selected.</span>
+	<br/>
+	<span>Have fun!</span>
+</div>
+<a href="https://github.com/egofang/alt-editor"><button id="get"><span>github</span>Fork it</button></a>
 
 
 <script type="text/javascript">
-
-var k= new alteditor(document.getElementById('zone'),{inline:['strong','em'],spoor:"文"});
-
+var k= new alteditor(document.getElementById('editor'),{
+		inline:['span','strong','em'],
+		spoor:"文"
+	});
 </script>
 </body>
 </html>
