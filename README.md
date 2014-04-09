@@ -27,20 +27,19 @@ in your code.
 For instance, u want to transfer element<b>#zone</b> into an alt-editor.
 <pre>
 <code>
-  var editor = new alteditor(document.getElementById('zone'),{
-      	//here is all the options for normal use
-     	inline:["strong","small","del"],  // tagName of elements avalible in editor
-	spoor:"F",  //placeholder when toggle tags
-	save:function(){	//ctrl+s will trigger save function
+```javascript
+var editor = new alteditor(document.getElementById('zone'),{
+	//here is all the options for normal use
+     	inline:["strong","small","del"],  	// tagName of elements avalible in editor
+	spoor:"F",  				//placeholder when toggle tags
+	save:function(){			//ctrl+s will trigger save function
 		console.log("save hasn't customed");return false;
 	},
-	lineBreaker:function(){ //node to insert when break line
+	lineBreaker:function(){ 		//node to insert when break line.
 		return document.createElement('br');
 	},
-	// uploader:null,  under coding
-	// maxImgWidth:540,
-	// maxImgHeight:540,
-  });
+});
+```
 </code>
 </pre>
 
