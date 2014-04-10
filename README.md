@@ -5,6 +5,11 @@ A <b>wysiwyg</b> content editor base on html5 contenteditable &amp; js range obj
 Make all inputs into HTML Element.
 
 
+##Quick look
+
+See the live demo [alt-editor](http://egofang.com/lab/alt-editor/)
+
+
 ##features
 
 
